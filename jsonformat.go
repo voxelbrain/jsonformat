@@ -9,10 +9,14 @@ import (
 	"os"
 )
 
+const (
+	VERSION = "0.1"
+)
+
 var (
 	formatFlag = flag.String("format", "csv", "Name of formatter")
 	fatalFlag  = flag.Bool("fatal", false, "Do not continue on error")
-	helpFlag   = flag.Bool("help", false, "Show this help")
+	helpFlag   = flag.Bool("help", false, "Show verbose help")
 )
 
 func main() {
@@ -25,6 +29,7 @@ func main() {
 		for name, format := range Formats {
 			fmt.Printf("\t\"%s\": %s\n", name, format.Description)
 		}
+		fmt.Printf("Version %s\n", VERSION)
 		return
 	}
 
@@ -54,6 +59,7 @@ func main() {
 			logFn("Could not apply input to template: %s", err)
 			continue
 		}
+		io.WriteString(os.Stdout, "\n")
 	}
 }
 
