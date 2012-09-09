@@ -54,7 +54,6 @@ func main() {
 			logFn("Could not apply input to template: %s", err)
 			continue
 		}
-		io.WriteString(os.Stdout, "\n")
 	}
 }
 

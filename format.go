@@ -1,13 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"text/template"
 )
 
 type Formatter interface {
 	Execute(w io.Writer, data interface{}) error
+}
+
+type FormatterFunc func(w io.Writer, data interface{}) error
+
+func (ff FormatterFunc) Execute(w io.Writer, data interface{}) error {
+	return ff(w, data)
 }
 
 type Compiler func(format string) (Formatter, error)
@@ -22,11 +27,5 @@ var Formats = map[string]Format{
 			return template.New("jsonformat").Parse(format)
 		},
 		Description: `Thin wrapper around Go's templating language. (http://golang.org/pkg/text/template/)`,
-	},
-	"csv": Format{
-		Compiler: func(format string) (Formatter, error) {
-			return nil, fmt.Errorf("CSV not implemented")
-		},
-		Description: `Shortcut for CSV-style output`,
 	},
 }
