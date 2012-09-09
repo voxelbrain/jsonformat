@@ -24,7 +24,9 @@ type Format struct {
 var Formats = map[string]Format{
 	"template": Format{
 		Compiler: func(format string) (Formatter, error) {
-			return template.New("jsonformat").Parse(format)
+			return template.New("jsonformat").
+				Funcs(defaultFuncs).
+				Parse(format)
 		},
 		Description: `Thin wrapper around Go's templating language. (http://golang.org/pkg/text/template/)`,
 	},

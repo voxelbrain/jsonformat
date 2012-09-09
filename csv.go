@@ -33,7 +33,9 @@ func CSVCompiler(format string) (Formatter, error) {
 		fieldnames = append(fieldnames, fieldformat[NAME])
 	}
 	fieldtemplate := strings.Join(fieldtemplates, ",") + "\n"
-	t, err := template.New("jsonformat").Parse(fieldtemplate)
+	t, err := template.New("jsonformat").
+		Funcs(defaultFuncs).
+		Parse(fieldtemplate)
 	if err != nil {
 		return nil, err
 	}
