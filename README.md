@@ -45,3 +45,6 @@ A simple `go get` should do the trick
     First Name,Last Name,Net Worth
     "John","Doe",22.23
     "Jane","Doe",250123.20
+
+---
+Version 0.1
