@@ -1,31 +1,38 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"text/template"
 )
 
 var (
-	fatalFlag = flag.Bool("fatal", false, "Do not continue on error")
-	helpFlag  = flag.Bool("help", false, "Show this help")
+	formatFlag = flag.String("format", "csv", "Name of formatter")
+	fatalFlag  = flag.Bool("fatal", false, "Do not continue on error")
+	helpFlag   = flag.Bool("help", false, "Show this help")
 )
 
 func main() {
 	flag.Parse()
 
 	if *helpFlag || flag.NArg() != 1 {
-		fmt.Println("Usage: jsonformat [options] <template>")
+		fmt.Println("Usage: jsonformat [options] <format string>")
 		flag.PrintDefaults()
+		fmt.Println("Formatters:")
+		for name, format := range Formats {
+			fmt.Printf("\t\"%s\": %s\n", name, format.Description)
+		}
 		return
 	}
 
-	t, err := template.New("jsonformat").Parse(flag.Arg(0))
+	format, ok := Formats[*formatFlag]
+	if !ok {
+		log.Fatalf("Unknown format %s", *formatFlag)
+	}
+	f, err := format.Compiler(flag.Arg(0))
 	if err != nil {
 		log.Fatalf("Template invalid: %s", err)
 	}
@@ -42,7 +49,7 @@ func main() {
 			log.Fatalf("Could not decode input: %s", err)
 			continue
 		}
-		err = t.Execute(os.Stdout, input)
+		err = f.Execute(os.Stdout, input)
 		if err != nil {
 			logFn("Could not apply input to template: %s", err)
 			continue
