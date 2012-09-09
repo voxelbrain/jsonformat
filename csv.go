@@ -15,7 +15,7 @@ const (
 	TYPE
 )
 
-var fieldregexp = regexp.MustCompile(`^\s*([[:alnum:]\.]*)=([[:alnum:]]*)(?:\s*\|\s*([[:alnum:]]*))?\s*`)
+var fieldregexp = regexp.MustCompile(`^\s*([[:alnum:]\.]*)=([[:alnum:]\s\.]*)(?:\s*\|\s*([[:alnum:]]*))?\s*`)
 
 func CSVCompiler(format string) (Formatter, error) {
 	fieldformats := strings.Split(format, ",")
