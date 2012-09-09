@@ -47,4 +47,4 @@ A simple `go get` should do the trick
     "Jane","Doe",250123.20
 
 ---
-Version 0.1
+Version 0.2

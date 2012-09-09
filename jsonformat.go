@@ -5,24 +5,26 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 )
 
 const (
-	VERSION = "0.1"
+	VERSION = "0.2"
 )
 
 var (
 	formatFlag = flag.String("format", "csv", "Name of formatter")
 	fatalFlag  = flag.Bool("fatal", false, "Do not continue on error")
+	inputFlag  = flag.String("input", "", "Read input from file instead of stdin")
 	helpFlag   = flag.Bool("help", false, "Show verbose help")
 )
 
 func main() {
 	flag.Parse()
 
-	if *helpFlag || flag.NArg() != 1 {
+	if *helpFlag || (flag.NArg() != 1 && len(*inputFlag) <= 0) {
 		fmt.Println("Usage: jsonformat [options] <format string>")
 		flag.PrintDefaults()
 		fmt.Println("Formatters:")
@@ -37,7 +39,8 @@ func main() {
 	if !ok {
 		log.Fatalf("Unknown format %s", *formatFlag)
 	}
-	f, err := format.Compiler(flag.Arg(0))
+
+	f, err := format.Compiler(formatString())
 	if err != nil {
 		log.Fatalf("Template invalid: %s", err)
 	}
@@ -74,4 +77,15 @@ func NewLogFn(fatal bool) LogFn {
 	return func(format string, v ...interface{}) {
 		log.Printf(format, v...)
 	}
+}
+
+func formatString() string {
+	if len(*inputFlag) > 0 {
+		d, e := ioutil.ReadFile(*inputFlag)
+		if e != nil {
+			log.Fatalf("Could not read file \"%s\": %s", *inputFlag, e)
+		}
+		return string(d)
+	}
+	return flag.Arg(0)
 }
