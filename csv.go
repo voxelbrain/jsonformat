@@ -32,7 +32,7 @@ func CSVCompiler(format string) (Formatter, error) {
 		fieldtemplates = append(fieldtemplates, fieldtemplate+"}}")
 		fieldnames = append(fieldnames, fieldformat[NAME])
 	}
-	fieldtemplate := strings.Join(fieldtemplates, ",") + "\n"
+	fieldtemplate := strings.Join(fieldtemplates, ",")
 	t, err := template.New("jsonformat").
 		Funcs(defaultFuncs).
 		Parse(fieldtemplate)
