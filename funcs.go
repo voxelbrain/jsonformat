@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 var defaultFuncs = map[string]interface{}{
@@ -12,17 +13,19 @@ var defaultFuncs = map[string]interface{}{
 func String(v interface{}) string {
 	switch x := v.(type) {
 	case string:
-		// FIXME x should be escaped
+		x = strings.Replace(x, `\`, `\\`, -1)
+		x = strings.Replace(x, `"`, `\"`, -1)
 		return fmt.Sprintf("\"%s\"", x)
 	case float64:
-		return fmt.Sprintf("\"%.2f\"", x)
+		return fmt.Sprintf("\"%f\"", x)
 	}
 	return ""
 }
 
-func Decimal(v interface{}) string {
+func Decimal(dec int, v interface{}) string {
 	if f, ok := v.(float64); ok {
-		return fmt.Sprintf("%.2f", f)
+		fmtstr := fmt.Sprintf("%%.%df", dec)
+		return fmt.Sprintf(fmtstr, f)
 	}
 	return ""
 }
