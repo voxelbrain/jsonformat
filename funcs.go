@@ -8,6 +8,7 @@ import (
 var defaultFuncs = map[string]interface{}{
 	"str": String,
 	"dec": Decimal,
+	"eq":  Equal,
 }
 
 func String(v interface{}) string {
@@ -28,4 +29,11 @@ func Decimal(dec int, v interface{}) string {
 		return fmt.Sprintf(fmtstr, f)
 	}
 	return ""
+}
+
+func Equal(v1, v2 interface{}) interface{} {
+	if v1 == v2 {
+		return v1
+	}
+	return nil
 }
