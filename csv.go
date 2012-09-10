@@ -12,10 +12,11 @@ import (
 const (
 	PATH = iota + 1
 	NAME
-	TYPE
+	FUNC
+	PARAM
 )
 
-var fieldregexp = regexp.MustCompile(`^\s*([[:alnum:]\.]*)=([[:alnum:]\s\.]*)(?:\s*\|\s*([[:alnum:]]*))?\s*`)
+var fieldregexp = regexp.MustCompile(`^\s*([[:alnum:]\.]+)=([[:alnum:]\s\.]+)(?:\s*\|\s*([[:alnum:]]+)(?:\(([[:alnum:]\s]+)\))?)?\s*`)
 
 func CSVCompiler(format string) (Formatter, error) {
 	fieldformats := strings.Split(format, ",")
@@ -23,11 +24,14 @@ func CSVCompiler(format string) (Formatter, error) {
 	for _, fieldformatstring := range fieldformats {
 		fieldformat := fieldregexp.FindStringSubmatch(fieldformatstring)
 		if fieldformat == nil || len(fieldformat) == 0 {
-			return nil, fmt.Errorf("Invalid CSV TYPE string")
+			return nil, fmt.Errorf("Invalid CSV format string")
 		}
 		fieldtemplate := "{{." + fieldformat[PATH]
-		if len(fieldformat[TYPE]) > 0 {
-			fieldtemplate += "|" + fieldformat[TYPE]
+		if len(fieldformat[FUNC]) > 0 {
+			fieldtemplate += "|" + fieldformat[FUNC]
+			if len(fieldformat[PARAM]) > 0 {
+				fieldtemplate += " " + fieldformat[PARAM]
+			}
 		}
 		fieldtemplates = append(fieldtemplates, fieldtemplate+"}}")
 		fieldnames = append(fieldnames, fieldformat[NAME])
