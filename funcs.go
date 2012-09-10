@@ -6,9 +6,10 @@ import (
 )
 
 var defaultFuncs = map[string]interface{}{
-	"str": String,
-	"dec": Decimal,
-	"eq":  Equal,
+	"str":        String,
+	"dec":        Decimal,
+	"eq":         Equal,
+	"eq_igncase": EqualIgnoreCase,
 }
 
 func String(v interface{}) string {
@@ -36,4 +37,11 @@ func Equal(v1, v2 interface{}) interface{} {
 		return v1
 	}
 	return nil
+}
+
+func EqualIgnoreCase(s1, s2 string) string {
+	if strings.ToLower(s1) == strings.ToLower(s2) {
+		return s1
+	}
+	return ""
 }
