@@ -12,8 +12,11 @@ var defaultFuncs = map[string]interface{}{
 	"eq_igncase": EqualIgnoreCase,
 }
 
-func String(v interface{}) string {
-	switch x := v.(type) {
+func String(v ...interface{}) string {
+	if v == nil || len(v) == 0 {
+		return "\"\""
+	}
+	switch x := v[0].(type) {
 	case string:
 		x = strings.Replace(x, `\`, `\\`, -1)
 		x = strings.Replace(x, `"`, `\"`, -1)
@@ -21,27 +24,36 @@ func String(v interface{}) string {
 	case float64:
 		return fmt.Sprintf("\"%f\"", x)
 	}
-	return ""
+	return "\"\""
 }
 
-func Decimal(dec int, v interface{}) string {
-	if f, ok := v.(float64); ok {
+func Decimal(dec int, v ...interface{}) string {
+	if v == nil || len(v) == 0 {
+		return ""
+	}
+	if f, ok := v[0].(float64); ok {
 		fmtstr := fmt.Sprintf("%%.%df", dec)
 		return fmt.Sprintf(fmtstr, f)
 	}
 	return ""
 }
 
-func Equal(v1, v2 interface{}) interface{} {
-	if v1 == v2 {
-		return v1
+func Equal(v ...interface{}) interface{} {
+	if v == nil || len(v) < 2 {
+		return nil
+	}
+	if v[0] == v[1] {
+		return v[0]
 	}
 	return nil
 }
 
-func EqualIgnoreCase(s1, s2 string) string {
-	if strings.ToLower(s1) == strings.ToLower(s2) {
-		return s1
+func EqualIgnoreCase(s ...string) string {
+	if len(s) < 2 {
+		return ""
+	}
+	if strings.ToLower(s[0]) == strings.ToLower(s[1]) {
+		return s[0]
 	}
 	return ""
 }
