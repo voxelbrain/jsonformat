@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
+	"github.com/voxelbrain/goptions"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,20 +13,23 @@ import (
 const (
 	VERSION = "0.3.1"
 )
-
 var (
-	formatFlag = flag.String("format", "csv", "Name of formatter")
-	fatalFlag  = flag.Bool("fatal", false, "Do not continue on error")
-	inputFlag  = flag.String("input", "", "Read input from file instead of stdin")
-	helpFlag   = flag.Bool("help", false, "Show verbose help")
+	options = struct {
+		Fatal bool	 `goptions:"-f, --fatal, description='Do not continue on error'"`
+		Input string `goptions:"-i, --input, description='Read input from file instead of stdin'"`
+		Format string `goptions:"-f, --format, obligatory, description='Name for the formatter'"`
+		goptions.Help
+	}{
+		Format: "csv",
+		Fatal: false,
+		Input: "",
+	}
 )
 
 func main() {
-	flag.Parse()
-
-	if *helpFlag || (flag.NArg() != 1 && len(*inputFlag) <= 0) {
-		fmt.Println("Usage: jsonformat [options] <format string>")
-		flag.PrintDefaults()
+	err := goptions.Parse(&options)
+	if err != nil {
+		goptions.PrintHelp()
 		fmt.Println("Formatters:")
 		for name, format := range Formats {
 			fmt.Printf("\t\"%s\": %s\n", name, format.Description)
@@ -35,9 +38,9 @@ func main() {
 		return
 	}
 
-	format, ok := Formats[*formatFlag]
+	format, ok := Formats[options.Format]
 	if !ok {
-		log.Fatalf("Unknown format %s", *formatFlag)
+		log.Fatalf("Unknown format %s", options.Format)
 	}
 
 	f, err := format.Compiler(formatString())
@@ -46,7 +49,7 @@ func main() {
 	}
 
 	dec := json.NewDecoder(os.Stdin)
-	logFn := NewLogFn(*fatalFlag)
+	logFn := NewLogFn(options.Fatal)
 	for {
 		var input interface{}
 		err := dec.Decode(&input)
@@ -80,12 +83,13 @@ func NewLogFn(fatal bool) LogFn {
 }
 
 func formatString() string {
-	if len(*inputFlag) > 0 {
-		d, e := ioutil.ReadFile(*inputFlag)
+	if len(options.Input) > 0 {
+		d, e := ioutil.ReadFile(options.Input)
 		if e != nil {
-			log.Fatalf("Could not read file \"%s\": %s", *inputFlag, e)
+			log.Fatalf("Could not read file \"%s\": %s", options.Input, e)
 		}
 		return string(d)
 	}
-	return flag.Arg(0)
+	// return flag.Arg(0)
+	return ""
 }
