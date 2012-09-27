@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/voxelbrain/goptions"
 	"fmt"
+	"github.com/voxelbrain/goptions"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,22 +13,26 @@ import (
 const (
 	VERSION = "0.3.1"
 )
+
 var (
 	options = struct {
-		Fatal bool	 `goptions:"-f, --fatal, description='Do not continue on error'"`
-		Input string `goptions:"-i, --input, description='Read input from file instead of stdin'"`
-		Format string `goptions:"-f, --format, obligatory, description='Name for the formatter'"`
-		goptions.Help
+		Continue      bool   `goptions:"-c, --continue, description='Continue on error'"`
+		FormatFile    string `goptions:"-r, --format-file, description='Read format from file', mutexgroup='input'"`
+		FormatString  string `goptions:"-s, --format-string, description='Format string', mutexgroup='input'"`
+		Format        string `goptions:"-f, --format, obligatory, description='Name for the formatter'"`
+		goptions.Help `goptions:"-h, --help, description='Show this help'`
 	}{
 		Format: "csv",
-		Fatal: false,
-		Input: "",
 	}
 )
 
 func main() {
 	err := goptions.Parse(&options)
-	if err != nil {
+	if err != nil || (len(options.FormatFile) <= 0 && len(options.FormatString) <= 0) {
+		if err == nil {
+			err = fmt.Errorf("One of --format-file and --format-string must be specified")
+		}
+		fmt.Printf("Error: %s\n", err)
 		goptions.PrintHelp()
 		fmt.Println("Formatters:")
 		for name, format := range Formats {
@@ -49,7 +53,7 @@ func main() {
 	}
 
 	dec := json.NewDecoder(os.Stdin)
-	logFn := NewLogFn(options.Fatal)
+	logFn := NewLogFn(options.Continue)
 	for {
 		var input interface{}
 		err := dec.Decode(&input)
@@ -71,8 +75,8 @@ func main() {
 
 type LogFn func(format string, v ...interface{})
 
-func NewLogFn(fatal bool) LogFn {
-	if fatal {
+func NewLogFn(c bool) LogFn {
+	if !c {
 		return func(format string, v ...interface{}) {
 			log.Fatalf(format, v...)
 		}
@@ -83,13 +87,15 @@ func NewLogFn(fatal bool) LogFn {
 }
 
 func formatString() string {
-	if len(options.Input) > 0 {
-		d, e := ioutil.ReadFile(options.Input)
+	if len(options.FormatFile) > 0 {
+		d, e := ioutil.ReadFile(options.FormatFile)
 		if e != nil {
-			log.Fatalf("Could not read file \"%s\": %s", options.Input, e)
+			log.Fatalf("Could not read file \"%s\": %s", options.FormatFile, e)
 		}
 		return string(d)
 	}
-	// return flag.Arg(0)
-	return ""
+	if len(options.FormatString) > 0 {
+		return options.FormatString
+	}
+	panic("Invalid execution path")
 }
