@@ -1,4 +1,4 @@
-`jsonformat` takes a stream ob [JSON](http://www.json.org) objects from stdin and
+`jsonformat` takes a stream of [JSON](http://www.json.org) objects from stdin and
 brings them into a (user) specified format.
 
 ## Installation
