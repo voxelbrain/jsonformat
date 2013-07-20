@@ -1,6 +1,8 @@
 `jsonformat` takes a stream of [JSON](http://www.json.org) objects from stdin and
 brings them into a (user) specified format.
 
+![](https://circleci.com/gh/voxelbrain/jsonformat.png?circle-token=6ddf086e7f4e93ee45579e7cd4fe242128c97cc8)
+
 ## Installation
 A simple `go get` should do the trick
 
@@ -47,4 +49,4 @@ A simple `go get` should do the trick
     "Jane","Doe",250123.200
 
 ---
-Version 0.4.1
+Version 0.4.2
